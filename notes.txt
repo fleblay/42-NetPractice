@@ -1,0 +1,28 @@
+											   INTRO
+Modele OSI : debut en 1984
+Modele theorique car le vrai utilise est le tcp/ip.
+Norme preconisant la maniere de communiquer entre ordinateurs
+7 couches :
+1 - Couche physique : support de transmission. Materiel : HUB/concentrateur
+2 - Couche liaison : connecter machines entres elles sur reseau local. Materiel : switch/commutateur
+3 - Couche reseau : interconnecter les reseaux entre eux. Materiel : routeur. (Addresse IP est de la couche 3).
+4 - Couche transport : gerer les connexions applicatives. Materiel : RAS
+5 - 6 : osef
+7 - Couche application. Materiel : proxy (exemple appli : le navigateur)
+
+Couches 1-4 : couches reseau.
+
+Regles d'or OSI :
+
+Chaque couche est independante, ie les informations utilisees par une couche ne peuvent pas etre utilisees par une autre couche.
+Cela garantit l'interchangeabilite des couches, cad remplacement d'une sans devoir refaire toutes les autres.
+
+Chaque couche ne peut communiquer qu'avec une couche adjacente.
+Donc on est sur que toutes les couches sont traversees lors d'une requette (7 vers 1). En realite, le chemin est 7-4-3-2-1.
+
+											LA COUCHE 1
+Sert a acheminer des signaux electriques (0 et 1). cable ethernet ou wifi sont de la couche 1.
+Cable coax : 10B2 pour 10 Mbps, B pour base et 2 pour 200m longueur max reseau.
+Paire torsadee : 4 paires, mais 2 utilisees en pratique : 1 pour l'envoi, 1 pour la reception.
+100BTx pour 100 Mbps, torsadee et x pour commute.
+Pour connecter 2 machines directement entre elles, il faut un cable croise.
