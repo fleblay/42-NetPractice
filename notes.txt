@@ -25,4 +25,77 @@ Sert a acheminer des signaux electriques (0 et 1). cable ethernet ou wifi sont d
 Cable coax : 10B2 pour 10 Mbps, B pour base et 2 pour 200m longueur max reseau.
 Paire torsadee : 4 paires, mais 2 utilisees en pratique : 1 pour l'envoi, 1 pour la reception.
 100BTx pour 100 Mbps, torsadee et x pour commute.
-Pour connecter 2 machines directement entre elles, il faut un cable croise.
+Pour connecter 2 machines directement entre elles, il faut un cable croise (si de meme type, cad 2 hub/switch ou 2 materiels connectes)
+Le hub distribue l'info a toutes les machines relies, c'est donc un materiel archaique et non adatpe a un reseau securise
+
+Fibre monomode pour les liaison longues, multi pour les liaisons courtes.
+
+Topologie reseau: maniere de brancher les machines entre elles
+En bus/ligne, en boucle, ou en etoile
+
+Bus : une seule machine parle a la fois
+Boucle, anneau : idem bus, mais avec un jeton de com
+Etoile : Point central fait l'aiguillage
+
+CSMA/CD : Carrier Sens Multiple Access/Collision Detection
+1.Ecouter en permanence si quelqu'un parle
+2.Parler si le bus est libre
+3.Si collision, on se tait pendant un temps aleatoire
+4.On reparle
+
+											LA COUCHE 2
+Permettre a des machines connectees ensemble de communiquer.
+Detecter les erreurs de transmission
+
+Identifiant couche 2 : addresse MAC
+L'addresse MAC est l'addresse d'une carte reseau.
+Codee sur 6 octets, et generallement inscrite en hexa
+3 premiers octets sont le code du constructeur 00:01:02 par ex.
+Astuce ordre de grandeur nombre : 2^10 vaut environ 1000 donc 2^48 vaut 1000^4 * 2^8 donc 256 mille milliards
+
+Addresse broadcast pour parler a tout le monde : ff:ff:ff:ff:ff:ff
+
+Protocole couche 2 : Ethernet
+Definit le format des messages envoyes sur le reseau (trame = message envoye sur le reseau en couche 2)
+
+CRC : code de correction des erreurs
+Trame : MAC DST - MAC SRC - Protocole couche 3 - Donnees - CRC
+En tete Eternet = 18 octets = 6 + 6 + 2 + 4 (MAC + MAC + PROTOCOLE + CRC)
+Trame min/max : 64 - 1518 octets
+
+Materiel de couche 2 : le switch/commutateur
+bridge/pont : switch avec uniquement 2 ports
+
+Table CAM : Content Addressable Memory. Table qui fait l'association entre un port du switch et l'addresse MAC associee
+Permet au switch d'envoyer la trame a la bonne machine
+Le switch aiguille les trames grace au MAC DST
+La table CAM est mise a jour dynamiquement quand le switch voie passer une trame.
+Si pas addresse de DST, le switch va envoyer le message a tout le monde, mais pas en broadcast
+TTL : time to live. Temps de retention d'une info de correspondance dans la table CAM
+
+Le switch est un element passif, il ne doit normalement pas decouvrir les addresses MAC des elements.
+Le switch n'a pas d'addresse MAC, sauf les administrables sur lequels on va se connecter.
+
+Attaques par envoi de message vers des mac inexistantes (switch va envoyer a tout le monde)
+Attaques par saturation de CAM en utilisant a chaque fois une addresee mac differente. Une fois la CAM
+saturee, le switch va envoyer les infos a tout le monde
+
+Plus de collisions dans un switch par rapport a hub, donc plus besoin de CSMA/CD
+Les trames sont stockees dans la memoire du switch si besoin d'attendre.
+C'est le full duplex, avant, c'etait half duplex sur hub.
+Il ne faut surtout pas melanger les 2, mais les cartes reseau sont capables de detecter sur quoi
+elles sont branchees et de choisir le bon mode en consequence
+Si hub connecte a un switch, le port associe sera en fonctionnement half duplex.
+A ce moment, la machine devra cesser toute com quand on lui parlera. Elle sera tres penalisee.
+
+VLAN: option/capacitee d'un switch
+Permet de faire plusieurs sous-reseaux
+
+Attention : Broadcast strom si on fait une boucle sur un meme switch.
+NE JAMAIS FAIRE DE BOUCLES SUR OU ENTRE DES SWITCH
+
+											LA COUCHE 3
+Protocole : IP
+role : interconnecter et communiquer entre reseaux
+Identifiant : l'addresse IP
+
