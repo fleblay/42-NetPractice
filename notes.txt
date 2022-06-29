@@ -98,4 +98,5 @@ NE JAMAIS FAIRE DE BOUCLES SUR OU ENTRE DES SWITCH
 Protocole : IP
 role : interconnecter et communiquer entre reseaux
 Identifiant : l'addresse IP
-
+C'est l'addresse du reseau ET de la machine : Une partie pour le reseau et une autre pour la machine
+Codee sur 4 octets et ecriture en decimal pointee
