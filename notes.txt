@@ -237,3 +237,5 @@ Pour connaitres les addresses MAC des paserelles qui sont sur notre reseau !
 ARP est un protocol pour associer une adresse MAC de couche 2 a une adresse IP de couche 3.
 Il y a donc une table ARP egalement pour chaque machine afin de ne pas faire une requette ARP (ou broadcast ARP) a chaque fois.
 Elle est sauvegarde pendant un temps court (2-3 minutes)
+
+arp -an pour afficher la table sous macos/linux
