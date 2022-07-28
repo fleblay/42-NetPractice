@@ -4,7 +4,7 @@ Modele theorique car le vrai utilise est le tcp/ip.
 Norme preconisant la maniere de communiquer entre ordinateurs
 7 couches :
 1 - Couche physique : support de transmission. Materiel : HUB/concentrateur
-2 - Couche liaison : connecter machines entres elles sur reseau local. Materiel : switch/commutateur
+2 - Couche liaison : connecter machines entres elles sur reseau local. Materiel : switch/commutateur.Addresse MAC et protocole Ethernet
 3 - Couche reseau : interconnecter les reseaux entre eux. Materiel : routeur. (Addresse IP est de la couche 3).
 4 - Couche transport : gerer les connexions applicatives. Materiel : RAS
 5 - 6 : osef
@@ -37,7 +37,7 @@ Bus : une seule machine parle a la fois
 Boucle, anneau : idem bus, mais avec un jeton de com
 Etoile : Point central fait l'aiguillage
 
-CSMA/CD : Carrier Sens Multiple Access/Collision Detection
+CSMA/CD : Carrier Sens Multiple Access/Collision Detection -> pour les bus
 1.Ecouter en permanence si quelqu'un parle
 2.Parler si le bus est libre
 3.Si collision, on se tait pendant un temps aleatoire
@@ -58,7 +58,7 @@ Addresse broadcast pour parler a tout le monde : ff:ff:ff:ff:ff:ff
 Protocole couche 2 : Ethernet
 Definit le format des messages envoyes sur le reseau (trame = message envoye sur le reseau en couche 2)
 
-CRC : code de correction des erreurs
+CRC : (cyclic redundancy check) code de correction des erreurs
 Trame : MAC DST - MAC SRC - Protocole couche 3 - Donnees - CRC
 En tete Eternet = 18 octets = 6 + 6 + 2 + 4 (MAC + MAC + PROTOCOLE + CRC)
 Trame min/max : 64 - 1518 octets
@@ -70,7 +70,7 @@ Table CAM : Content Addressable Memory. Table qui fait l'association entre un po
 Permet au switch d'envoyer la trame a la bonne machine
 Le switch aiguille les trames grace au MAC DST
 La table CAM est mise a jour dynamiquement quand le switch voie passer une trame.
-Si pas addresse de DST, le switch va envoyer le message a tout le monde, mais pas en broadcast
+Si pas addresse de DST, le switch va envoyer le message a tout le monde, mais pas en broadcast (l'addresse de destination sera la vraie, pas l'addresse speciale broadcast pour dire a tout le monde de recuperer le message : ff:ff...)
 TTL : time to live. Temps de retention d'une info de correspondance dans la table CAM
 
 Le switch est un element passif, il ne doit normalement pas decouvrir les addresses MAC des elements.
@@ -91,12 +91,149 @@ A ce moment, la machine devra cesser toute com quand on lui parlera. Elle sera t
 VLAN: option/capacitee d'un switch
 Permet de faire plusieurs sous-reseaux
 
-Attention : Broadcast strom si on fait une boucle sur un meme switch.
+Attention : Broadcast storm si on fait une boucle sur un meme switch.
 NE JAMAIS FAIRE DE BOUCLES SUR OU ENTRE DES SWITCH
 
+La commutation implique que le switch a une memoire pour stoker les trames. Il les envoie ensuite au fur et a mesure.
 											LA COUCHE 3
 Protocole : IP
 role : interconnecter et communiquer entre reseaux
-Identifiant : l'addresse IP
+Identifiant : l'addresse IP et masque de sous-reseau
 C'est l'addresse du reseau ET de la machine : Une partie pour le reseau et une autre pour la machine
 Codee sur 4 octets et ecriture en decimal pointee
+
+Le masque est inseparable de l'addresse IP !!! Il indique quelle est la partie addresse reseau et quelle est la partie machine.
+Les bits a 1 sont la partie reseau
+Les 1 doivent etre a gauche, et les 0 a droite : continuite de bits.
+
+Les valeurs ok pour un octet de masque :
+
+0000 0000 -> 0
+1000 0000 -> 128
+1100 0000 -> 192
+1110 0000 -> 224
+1111 0000 -> 240 -> 2^4 = 16 adresses dispo
+1111 1000 -> 248
+1111 1100 -> 252
+1111 1110 -> 254
+1111 1111 -> 255
+
+Plage d'adresses : l'ensemble des adresses definies par un masque et une addresse.
+Les machines qui appartiennent au meme reseau ont leur bits de reseau identique.
+
+La premiere adresse de la plage -> tous les bits de partie machine sont a 0. Adresse du reseau. Elle est toujours paire
+La derniere adresse de la plage -> tous les bits de partie machine sont a 1. Adresse de broadcast. Elle est toujous impaire
+Le nombre de machines disponibles sur un reseau est directement dependant du masque : 2^(nb de 0 dans masque ecrit en binaire).
+L'adresse de reseau et de broadcast sont toujours non utilisables par les machines du reseau.
+
+RFC 1918 : Les plages d'addresse et les reseaux particuliers
+Les plages definies utilisables pour les reseaux internes sont :
+
+10.0.0.0/255.0.0.0
+172.16.0.0/255.240.0.0
+192.168.0.0/255.255.0.0
+
+On peut etre plus restrictif sur le masque.
+
+Decoupage plages adresses :
+
+Ecriture CIDR : 255.255.255.0 -> /24 pour 24 bits a 1 sur les 32 dispo.
+Ecriture CIDR : 255.255.240.0 -> /20 pour 20 bits a 1 sur les 32 dispo.
+
+1.Faire un decoupage facile de reseau quand on a le choix de toutes les adresses
+Evaluer le nombre de machines et donc le nombre de 0 a utiliser dans le masque
+1000 machines < 2^10 donc 10 bits a 0 dans le masque
+Donc le masque 255.255.252.0 est ok
+On commence a 10.0.0.0 -> la derniere adresse sera 10.0.3.255
+Le debut de l'addresse du groupe suivant sera 10.0.4.0
+On recommence avec les groupes suivants
+Toujours creer les groupes du plus grand au plus petit !
+
+2. Calcul d'une plage d'origine a partir d'une addresse et d'un masque :
+10.45.185.24/255.255.248.0
+Masque avec un libertee de 256 - 248 = 8
+Les plages de debut seront donc 0,8,16...160,168,176,184,192...
+Notre debut est donc a 184, la fin a 191
+La plage est 10.45.184.0 - 10.45.191.255
+
+3. Toujours prendre une plage qui a uniquement des 0 pour les bits d'addresse
+(Dans le cas ou on ne decoupe pas du plus grand au plus petit)
+Aller a la prochaine addresse qui a uniquement des zero pour le masque du groupe qu'on veut faire.
+Ex : 255.255.255.0 avec un debut a 10.0.0.32 pour le debut dispo-> On va aller a 10.0.1.0
+
+exo :
+Plage 10.47.192.0/255.255.240.0
+880 tech < 1024 = 2^10 -> 255.255.252.0
+400 comm < 512 = 2^9 -> 255.255.254.0
+60 dir < 64 = 2^6 -> 255.255.255.192 -> 255.255.255.128 pour secu
+
+Plage tech : Plage largeur 4 -> 10.47.192.0 - 10.47.195.255
+Plage com : Plage largeur 2 -> 10.47.196.0 - 10.47.197.255
+Plage dir : Plage largeur nan -> 10.47.198.0 - 10.47.198.127
+
+Plage dir : 10.47.192.0 - 10.47.192.127
+Plage com : Plage largeur 2 -> 10.47.194.0 - 10.47.195.255
+Plage tech : Plage largeur 4 -> 10.47.196.0 - 10.47.199.255
+
+Le routage :
+
+Protocole de la couche 3 : IP
+
+Si une machine est sur le meme reseau, on communique grace a la couche 2, sinon grace a la couche 3
+Comme pour la couche 2, il y a un format de message, le datagramme ou paquet :
+
+
+??? - IP SRC - IP DST - DATA
+
+trame ethernet :
+Trame : MAC DST - MAC SRC - Protocole couche 3 - Donnees - CRC
+En fait :
+Trame : MAC DST - MAC SRC - Protocole couche 3 - (En tete couche 3 - En tete couche 4 - Donnees - CRC
+
+On met l'IP de destination avant la source, parce que si on a recu le paquet, il a traverse les couches dans le sens 1->7 pour nous arriver, donc on sait deja que le message est pour nous.
+En revanche, pour la trame ethernet, la mettre dans ce sens permet de jeter les trames qui ne nous sont pas destinees plus rapidement
+
+Routeur : Materiel de couche 3 qui relie plusieurs reseaux
+Il doit donc avoir une interface dans chacun des reseaux auxquels il est connecte
+Il a plusieurs cartes reseau. Il va relayer les paquets qui ne sont pas pour lui.
+Une simple machine non routeur va juste les jeter.
+
+Une addresse MAC est propre a un reseau local, on ne la voit pas en dehors
+Si IP pas sur notre reseau, l'adresse MAC de la source est celle du dernier routeur
+
+Si en remontant de la couche 2 vers 3 on se rend compte que le message est pour notre adresse MAC, mais pas pour notre adresse IP, on doit la router vers quelqu'un d'autre, via la table de routage (si on est un routeur)
+
+table de routage :
+Liste les routeurs a qui je peux envoyer mon datagramme pour joindre une destination donnee. Ce sont des passerelles
+
+route par defaut :
+Route si l'adresse que je veux joindre n'appartient a aucun des reseaux de ma table
+L'adresse du routeur qui nous "rapproche d'internet"
+On la note defaut, ou 0.0.0.0
+
+ecrire table de routage :
+1. lister les reseaux auxquels le routeur est connecte
+2. indiquer route par defaut
+3. indiquer les autres reseau que je ne peux pas joindre avec les 1. et 2.
+4. Renseigner les passerelles : La passerelle pour joindre un de mes reseaux est mon adresse
+(La passerelle fait partie du reseau)
+
+Chaque machine a egalement une table de routage (meme si ce n'est pas un routeur)
+Permet de savoir a qui envoyer un paquet quand autre reseau que le sien
+Pour joindre un reseau, une machine doit utiliser une passerelle qui appartient a son propre reseau
+UNE PASSERELLE INDIQUEE DANS UNE TABLE DE ROUTAGE APPARTIENT TOUJOURS A L'UN DE MES RESAUX
+On saura joindre tous les reseaux qui seront derriere la passerelle par defaut
+
+route -n sous linux ou netstat -nr macos
+
+TP Pratique :
+
+On peut joindre une machine uniquement si le routage fonctionne dans les 2 sens !!!
+
+Autres protocoles pour la couche 3 :
+
+ARP : Address Resolution Protocol
+Pour connaitres les addresses MAC des paserelles qui sont sur notre reseau !
+ARP est un protocol pour associer une adresse MAC de couche 2 a une adresse IP de couche 3.
+Il y a donc une table ARP egalement pour chaque machine afin de ne pas faire une requette ARP (ou broadcast ARP) a chaque fois.
+Elle est sauvegarde pendant un temps court (2-3 minutes)
