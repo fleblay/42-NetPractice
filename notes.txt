@@ -237,5 +237,104 @@ Pour connaitres les addresses MAC des paserelles qui sont sur notre reseau !
 ARP est un protocol pour associer une adresse MAC de couche 2 a une adresse IP de couche 3.
 Il y a donc une table ARP egalement pour chaque machine afin de ne pas faire une requette ARP (ou broadcast ARP) a chaque fois.
 Elle est sauvegarde pendant un temps court (2-3 minutes)
+Il appartient a la fois a la couche 2 et la couche 3
 
 arp -an pour afficher la table sous macos/linux
+Possibilite de faire de l'ARP cache poisonning en donnant son adresse MAC pirate lors d'une requette ARP. Il suffit juste d'etre la derniere reponse emise pour etre celle prise en compte.
+
+Protocole ICMP : Protocole couche 3
+Protocole de gestion des erreurs de transmission -> Internet Control Message Protocol
+Il vient en complement du protocole IP
+
+2 infos dans l'entete : type et code
+Le code donne des pricions sur le type d'erreur
+TTL dans l'entete IP: time to live. De base a 64 sur Linux. A chaque passage par un routeur, il va enlever 1 au TTL. A 0, le paquet est jete et le message ICMP "TTL exceeded" est lance.
+
+Le ping est une combinaison de 2 message ICMP : echo request (8) et echo reply (0)
+traceroute va envoyer des message avec des TTL de 1, puis 2 etc... pour que chacun des routeurs renvoie un TTL-exceeded. Par incrementation, on va savoir par quels routeurs on est passe pour le chemin complet.
+
+
+											LA COUCHE 4
+
+Service : programme qui est en ecoute sur une machine
+Role couche 4 : faire dialoguer ensemble de applications
+
+L'identifiant de la couche 4 est le port : c'est l'adresse d'une application sur une machine
+Le port est code sur 2 octets soit 65000 valeurs
+
+Les ports des applications clientes sont donnees aleatoirement, au dessus de 1024.
+Les ports en dessous de 1024 sont reserves pour les services standards (mail, ssh, ftp...)
+
+netstat -antp pour voir la liste des ports ouverts.
+
+2 protocoles differents : TCP et UDP
+TCP : fiable, mais moins rapide -> pas de perte de paquets acceptable : mail, ssh, jeux, web
+UDP : rapide, mais moins fiable - > pert de paquets ok : streaming, radio, tv, (et aussi DNS, SNMP)
+
+TCP : chaque paquet doit etre aquitte par le receveur. Protocole dit connecte
+UDP : paquets envoyes des que possible. Protocole non connecte
+
+Datagramme UDP :
+Port source - Port destination - Longueur totale - checksum - DATA
+2 octets chacun pour l'entete - 8 octets au total
+Taille en octets codee sur 2 octets, mais en general datagramme UDP de taille 512 octets max.
+
+Il y a un CRC meme si la couche 4 est encapsulee dans la couche 2 (qui fait un CRC) car les couches sont censees etre independante. Il peut egalement y avoir des problemes dans les encapsulations
+
+Protocole TCP :
+Les 3 premiers paquets ne servent qu'a etablir la communication
+Il y aura dans infos dans l'en-tete pour differencier les paquets de connexion des paquets normaux
+Via des flags (0 ou 1)
+
+1.Client -> serveur : Flag SYN pour synchro
+2.Serveur -> client : Flag ACK et SYN (car 2 connexions necessaires)
+3.Client -> serveur : flag ACK
+
+C'est la Three Way Handshake
+
+Par la suite, le flag ACK sera envoye dans tous les paquets pour signifier qu'on a recu le paquet precedent
+
+Pour finir la connexion :
+
+Demande de fermeture client : ACK et FIN
+Demande de fermeture serveur : ACK et FIN
+Aknowledge du client : ACK
+
+Segment TCP :
+Port Source - Port Dest - ??? - Flags - ??? - checksum - ??? - Data
+20 octets
+
+Flag RST : Pour signaler une anomalie, ou qu'un port est ferme (pas en ecoute) lors d'une requette SYN
+Flag PSH et URG : pour signaler la priorite des paquets.
+
+Wireshark pour sniffer les paquets reseau et pouvoir comprendre ce qui se passe en cas de probleme.
+
+NAT et Port Forwarding : network address translation
+Solutionne le probleme de reponse quand une machine envoie un message sur le net : L'IP de DST est ok pour la requette, mais pour la reponse, l'IP sera de la plage des adresses reserves, et donc le routeur ne saura pas comment sortir du reseau local
+On aura jamais de reponse a des requetes envoyees dsur internet quand on utilise des adresses privees
+
+NAT dynamique : associe n adresses privees a une addresse publique -> economie d'adresses
+NAT statique : associe une adresse publique pour chaque adresse privee
+
+La NAT va remplacer l'addresse privee de la machine par son addresse (publique) afin de pouvoir recevoir la reponse.
+Grace a la table NAT, on pourra retrouve le destinataire dans le sens internet->machine du reseau privee avec les 4 infos suivantes :
+IP SRC - IP DST - PORT SRC - PORT DST
+
+Le routeur va egalement transformer le port de source par un port choisit par lui meme afin de se premunir contre un cas ou 2 Machines du reseau local utiliserait les meme infos (meme site, meme port de DST, meme port de source etc...)
+Il va egalement noter cette info dans la table NAT
+La limite d'addresse privees est donc theoriquement du nombre de ports, soit 65000 machines qui ont 1 connexion ouverte
+En pratique dans une entreprise, on aura plusieures adresses publiques.
+
+TCP et UDP ok via la NAT, car utilisent des ports.
+On a solutionne le probleme de la reponse a une requete venant de notre reseau.
+ARP n'a pas besoin de NAT car c'est un protocole utilise en local et base sur le broadcast
+
+Comment faire pour etre joint depuis l'exterieur ? -> Port Forwarding
+On redirige un port de notre routeur vers un port donne sur une machine locale
+Gain en securite, car on ne redirige que les demandes inscrites sur la table de port forwarding.
+Les autres demandes ne peuvent pas acceder aux machines locales.
+En revanche, il n'y a qu'un port 80 dispo par exemple, donc potentiellement un seul serveur WEB parmitoutes les machines locales
+
+Proxy : relais applicatif. Application de la couche 7 qui recoit des requetes et les transmet a une machine destination comme si c'etait elle qui faisait les requetes.
+
+
