@@ -125,6 +125,8 @@ La premiere adresse de la plage -> tous les bits de partie machine sont a 0. Adr
 La derniere adresse de la plage -> tous les bits de partie machine sont a 1. Adresse de broadcast. Elle est toujous impaire
 Le nombre de machines disponibles sur un reseau est directement dependant du masque : 2^(nb de 0 dans masque ecrit en binaire).
 L'adresse de reseau et de broadcast sont toujours non utilisables par les machines du reseau.
+RMQ : en general, sur une plage d'addresses :
+La premiere dispo est pour le routeur ou la derniere : 254 par ex
 
 RFC 1918 : Les plages d'addresse et les reseaux particuliers
 Les plages definies utilisables pour les reseaux internes sont :
@@ -336,5 +338,4 @@ Les autres demandes ne peuvent pas acceder aux machines locales.
 En revanche, il n'y a qu'un port 80 dispo par exemple, donc potentiellement un seul serveur WEB parmitoutes les machines locales
 
 Proxy : relais applicatif. Application de la couche 7 qui recoit des requetes et les transmet a une machine destination comme si c'etait elle qui faisait les requetes.
-
 
