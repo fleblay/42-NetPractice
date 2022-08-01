@@ -339,3 +339,20 @@ En revanche, il n'y a qu'un port 80 dispo par exemple, donc potentiellement un s
 
 Proxy : relais applicatif. Application de la couche 7 qui recoit des requetes et les transmet a une machine destination comme si c'etait elle qui faisait les requetes.
 
+Exemple d'une requette complete :
+
+Pile TPC/IP : implementatin du modele OSI au sein de l'OS. Programme qui fabrique les en-tetes.
+HTTP : protocole applicatif pour envoyer des requetes WEB. Fonctionne viale protocole de couche 4 TCP
+Qui peut le plus peut le moins : un equipement de couche 3 saura interpreter tous les protocoles des couches inferieures.
+Le routeur qui fait la NAT change des infos de la couche 4 (le port) et de la couche 3 (l'IP)
+
+RMQ IMPORTANTE : A chaque passage par un equipement, on remonte le modele OSI jusqu'au niveau de l'equipement (2 pour un switch, 3 pour un routeur, 4 pour un routeur qui NAT, 7 sur une machine etc...)
+
+RMQ :
+Quand on passe d'un reseau a un autre les adresse MAC changent dans l'en-tete
+Quand on passe d'un reseau a un autre rien ne change dans les en tetes de couche 3 et 4 (IP et TCP) sauf si NAT
+Si NAT, on change les IP source et port source
+
+DHCP :
+
+
