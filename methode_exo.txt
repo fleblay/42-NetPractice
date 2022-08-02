@@ -1,0 +1,12 @@
+1. Regarder le nombre de redirection que l'on a depuis l'interface web vers des reseaux internes pour savoir combien de sous-reseau
+avec racines differentes on peut faire.
+2. Idem pour les differentes routeur avec des routes depuis l'exterieur vers l'interieur. On aura toujours une route a reserver pour le default (0.0.0.0/0) pour aller vers le next hop/prochain routeur vers le net
+3. On part des reseaux internes et des postes les plus profond pour creer une route vers internet en renseignant la route par defaut pour les postes, puis pour les routeurs etc...
+4. Une fois arrivee a internet, on renseigne les redirections de reseaux internes (type 133.0.50.1/26 -> 50.41.1.1) depuis le net vers ls reseaux les plus internes.
+
+Attention :
+
+Mettre les routeurs qui sont seuls sur des sous-reseau avec des petits masques (type 255.255.255.252 ie /30)
+Si on a peu de routes, essayer d'optimiser en faisant une seule route internet->sous-reseau principal en /24 par exemple, puis eclater en 2 sous-reseau en /25 voir 26 ou 27 (exo 10 par exemple).
+Classes reserves : 10, 172.16 192.168 etc... ne seront par routes vers internet)
+
