@@ -355,4 +355,26 @@ Si NAT, on change les IP source et port source
 
 DHCP :
 
+Serveur qui fournit des adresse IP a une machine au lieu de le faire manuellement. Permet de se connecter sans
+connaitre au prealable la passerelle, ni les infos pour se connecter sur le bon reseau.
+Il va donc ecouter sur un port (par defaut le 67 en UDP)
 
+On va envoyer des trames Ethernet (on a pas d'adresse IP pour l'instant) via le MAC de broadcast.
+La trame s'appelle DCHPDISCOVER et elle est envoyee a ff:ff:ff:ff:ff:ff
+Le serveur DCHCP doit se retrouver sur le meme reseau que la machine
+On aura les echanges suivants :
+
+DCHPDISCOVER : client->serveur
+DCHPOFFER : server->client
+DCHPREQUEST : client->serveur
+DCHPACK : server->client
+
+On aura dans le DHCP offer : une proposition d'IP, un masque, une passerelle par defaut et un serveur DNS (Les 2 derniers sont facultatifs)
+
+On a ainsi un bail pour une duree limitee. Au renouvellement, on essaiera directement de faire un DHCPREQUEST pour essayer de garder la meme adresse IP.
+
+On peut ecouter les trames avec tcpdump :
+tcpdump -i eth0
+
+DNS (Domain Name System): Resolution de nom de site web en adresse IP.
+Extension : en premier en partant de la droite -> Top Level Domain.

@@ -9,4 +9,4 @@ Attention :
 Mettre les routeurs qui sont seuls sur des sous-reseau avec des petits masques (type 255.255.255.252 ie /30)
 Si on a peu de routes, essayer d'optimiser en faisant une seule route internet->sous-reseau principal en /24 par exemple, puis eclater en 2 sous-reseau en /25 voir 26 ou 27 (exo 10 par exemple).
 Classes reserves : 10, 172.16 192.168 etc... ne seront par routes vers internet)
-
+Un routeur n'ont pas besoin d'avoir une route renseignee pour que Internet puisse dialoguer avec un des sous-reseaux auquels il est connecte. Il y a une regle implicite qui permet de rebasculer le message.
