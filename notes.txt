@@ -378,3 +378,50 @@ tcpdump -i eth0
 
 DNS (Domain Name System): Resolution de nom de site web en adresse IP.
 Extension : en premier en partant de la droite -> Top Level Domain.
+Il existe des TDL nationaux (fr, it, de etc...) et generiques (com, org etc...)
+
+Chaque partie est un label, et l'ensemble constitue un FQDN : Fully Qualified Domain Name
+Par convention, en FQDN se termine par un point normalement : www.google.com.
+Cela permet d'etre sur qu'il n'y a pas de domaine au dessus !
+Il y a en fait la racine du DNS
+
+Dans l'architecture DNS, chaque label est responsable du niveau directement en dessous (a gauche donc)
+On peut acheter le fait de gerer un nom de domaine
+
+La resolution :
+On demande au serveur DNS l'IP correspondant a un site type www.google.com
+Le serveur DNS de notre nom de domaine ne connait pas l'info, car chaque serveur DNS est responsable d'un domaine ou d'un petit nombre de domaines
+Il demande a la racine qui le renvoie vers le serveur DNS de com.
+Le serveur DNS de com. le revoie vers google.com.
+Le serveur DNS de google.com. donne finalement l'IP de www.google.com.
+
+Faire autorite : Si resolution d'un nom de domaine par un serveur sans avoir besoin de demander l'info a quelqu'un d'autre.
+
+ICANN organisme americain qui gere les 13 serveurs DNS racine. Ces 13 serveurs ont les IP des serveurs DNS qui gerent les TLD
+
+Serveur de nom de domaine le plus repandu : BIND9
+
+On declare et on configure des zones
+Toujours 1 serveur principal DNS et un serveur secondaire (slave)
+Toujours 2 adresses de messagerie
+
+Type d'enregistrement :
+
+A		: nom d'hote -> IPV4
+CNAME	: alias pointant sur un autre nom d'hote
+NS		: definir un serveur DNS du domaine
+MX		: definir un serveur MAIL du domaine
+PTR		: IPV4 -> nom d'hote. Pour les zones inverses uniquement
+SOA		: infos de zone et duree diverses
+
+Il y a des valeurs de poids pour la priorite (plus faible est prioritaire). A tour de role sinon
+Attention a bien penser que si on ne termine pas un nom par un ., on sous-entend que le FQDN sera rajoute a la fin (ns2 deviendra ns2.reseau.fr. par exemple)
+
+Commande host ou dig pour faire des interrogations DNS (sur 8.8.8.8 par exemple, un serveur DNS public propose par Google)
+
+ex : host -t a www.leboncoin.fr 8.8.8.8 pour avoir IP de leboncoin
+
+Protocole HTTP :
+A pour role de transporter des pages web composees de balises HTML
+
+Les serveurs les plus utilise sont Apache et Nginx
